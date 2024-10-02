@@ -1,0 +1,324 @@
+Table of Contents
+Instructions
+About the Data
+Importing Data
+Data Preprocessing
+One Hot Encoding
+Train and Test Data Split
+Train Logistic Regression, KNN, Decision Tree, SVM, and Linear Regression models and return their appropriate accuracy scores
+Estimated Time Needed: 180 min
+
+The original source of the data is Australian Government's Bureau of Meteorology and the latest data can be gathered from http://www.bom.gov.au/climate/dwo/.
+
+The dataset to be used has extra columns like 'RainToday' and our target is 'RainTomorrow', which was gathered from the Rattle at https://bitbucket.org/kayontoga/rattle/src/master/data/weatherAUS.RData
+
+This dataset contains observations of weather metrics for each day from 2008 to 2017. The weatherAUS.csv dataset includes the following fields:
+
+Field	Description	Unit	Type
+Date	Date of the Observation in YYYY-MM-DD	Date	object
+Location	Location of the Observation	Location	object
+MinTemp	Minimum temperature	Celsius	float
+MaxTemp	Maximum temperature	Celsius	float
+Rainfall	Amount of rainfall	Millimeters	float
+Evaporation	Amount of evaporation	Millimeters	float
+Sunshine	Amount of bright sunshine	hours	float
+WindGustDir	Direction of the strongest gust	Compass Points	object
+WindGustSpeed	Speed of the strongest gust	Kilometers/Hour	object
+WindDir9am	Wind direction averaged of 10 minutes prior to 9am	Compass Points	object
+WindDir3pm	Wind direction averaged of 10 minutes prior to 3pm	Compass Points	object
+WindSpeed9am	Wind speed averaged of 10 minutes prior to 9am	Kilometers/Hour	float
+WindSpeed3pm	Wind speed averaged of 10 minutes prior to 3pm	Kilometers/Hour	float
+Humidity9am	Humidity at 9am	Percent	float
+Humidity3pm	Humidity at 3pm	Percent	float
+Pressure9am	Atmospheric pressure reduced to mean sea level at 9am	Hectopascal	float
+Pressure3pm	Atmospheric pressure reduced to mean sea level at 3pm	Hectopascal	float
+Cloud9am	Fraction of the sky obscured by cloud at 9am	Eights	float
+Cloud3pm	Fraction of the sky obscured by cloud at 3pm	Eights	float
+Temp9am	Temperature at 9am	Celsius	float
+Temp3pm	Temperature at 3pm	Celsius	float
+RainToday	If there was rain today	Yes/No	object
+RainTomorrow	If there is rain tomorrow	Yes/No	float
+Column definitions were gathered from http://www.bom.gov.au/climate/dwo/IDCJDW0000.shtml
+Import the required libraries
+#filepath = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-ML0101EN-SkillUp/labs/ML-FinalAssignment/Weather_Data.csv"
+#df = pd.read_csv(filepath)
+df.head()
+Date	MinTemp	MaxTemp	Rainfall	Evaporation	Sunshine	WindGustDir	WindGustSpeed	WindDir9am	WindDir3pm	...	Humidity9am	Humidity3pm	Pressure9am	Pressure3pm	Cloud9am	Cloud3pm	Temp9am	Temp3pm	RainToday	RainTomorrow
+0	2/1/2008	19.5	22.4	15.6	6.2	0.0	W	41	S	SSW	...	92	84	1017.6	1017.4	8	8	20.7	20.9	Yes	Yes
+1	2/2/2008	19.5	25.6	6.0	3.4	2.7	W	41	W	E	...	83	73	1017.9	1016.4	7	7	22.4	24.8	Yes	Yes
+2	2/3/2008	21.6	24.5	6.6	2.4	0.1	W	41	ESE	ESE	...	88	86	1016.7	1015.6	7	8	23.5	23.0	Yes	Yes
+3	2/4/2008	20.2	22.8	18.8	2.2	0.0	W	41	NNE	E	...	83	90	1014.2	1011.8	8	8	21.4	20.9	Yes	Yes
+4	2/5/2008	19.7	25.7	77.4	4.8	0.0	W	41	NNE	W	...	88	74	1008.3	1004.8	8	8	22.5	25.5	Yes	Yes
+5 rows × 22 columns
+
+Data Preprocessing
+One Hot Encoding
+First, we need to perform one hot encoding to convert categorical variables to binary variables.
+
+df_sydney_processed = pd.get_dummies(data=df, columns=['RainToday', 'WindGustDir', 'WindDir9am', 'WindDir3pm'])
+Next, we replace the values of the 'RainTomorrow' column changing them from a categorical column to a binary column. We do not use the get_dummies method because we would end up with two columns for 'RainTomorrow' and we do not want, since 'RainTomorrow' is our target.
+
+df_sydney_processed.replace(['No', 'Yes'], [0,1], inplace=True)
+Training Data and Test Data
+Now, we set our 'features' or x values and our Y or target variable.
+
+df_sydney_processed.drop('Date',axis=1,inplace=True)
+df_sydney_processed = df_sydney_processed.astype(float)
+features = df_sydney_processed.drop(columns='RainTomorrow', axis=1)
+Y = df_sydney_processed['RainTomorrow']
+Linear Regression
+Q1) Use the train_test_split function to split the features and Y dataframes with a test_size of 0.2 and the random_state set to 10.
+
+#Enter Your Code and Execute
+from sklearn.model_selection import train_test_split
+print ('Train set:', x_train.shape,  y_train.shape)
+print ('Test set:', x_test.shape,  y_test.shape) 
+
+Train set: (2616, 66) (2616,)
+Test set: (655, 66) (655,)
+
+x_train, x_test, y_train, y_test = train_test_split(features, Y, test_size=0.2, random_state=10)
+
+Q2) Create and train a Linear Regression model called LinearReg using the training data (x_train, y_train)
+#Enter Your Code and Execute
+LinearReg = LinearRegression()
+LinearReg.fit(x_train, y_train)
+print ('Coefficients: ', LinearReg.coef_)
+
+
+Coefficients:  [-2.36883601e-02  1.30031554e-02  7.30154915e-04  6.49290860e-03
+ -3.51614515e-02  4.23841910e-03  1.82843563e-03  7.89794445e-04
+  9.55888360e-04  8.56007751e-03  7.70261345e-03 -9.24932344e-03
+ -8.87528023e-03  1.00457553e-02  1.44651992e-02 -3.48325241e-03
+  1.03190076e+10  1.03190076e+10 -4.35428535e+09 -4.35428535e+09
+ -4.35428535e+09 -4.35428535e+09 -4.35428535e+09 -4.35428535e+09
+ -4.35428535e+09 -4.35428535e+09 -4.35428535e+09 -4.35428535e+09
+ -4.35428535e+09 -4.35428535e+09 -4.35428535e+09 -4.35428535e+09
+ -4.35428535e+09 -4.35428535e+09  4.72755310e+09  4.72755310e+09
+  4.72755310e+09  4.72755310e+09  4.72755310e+09  4.72755310e+09
+  4.72755310e+09  4.72755310e+09  4.72755310e+09  4.72755310e+09
+  4.72755310e+09  4.72755310e+09  4.72755310e+09  4.72755310e+09
+  4.72755310e+09  4.72755310e+09 -1.18315500e+10 -1.18315500e+10
+ -1.18315500e+10 -1.18315500e+10 -1.18315500e+10 -1.18315500e+10
+ -1.18315500e+10 -1.18315500e+10 -1.18315500e+10 -1.18315500e+10
+ -1.18315500e+10 -1.18315500e+10 -1.18315500e+10 -1.18315500e+10
+ -1.18315500e+10 -1.18315500e+10]
+
+Q3) Now use the predict method on the testing data (x_test) and save it to the array predictions
+
+#Enter Your Code and Execute
+predictions = LinearReg.predict(x_test)
+print("residual sum of squares: %.2f" % np.mean((predictions - y_test) ** 2))
+print("Variance score: %.2f" % LinearReg.score(x_test, y_test))
+
+residual sum of squares: 0.12
+Variance score: 0.43
+
+Q4) Using the predictions and the y_test dataframe calculate the value for each metric using the appropriate function
+
+from sklearn.metrics import r2_score
+LinearRegression_MAE = np.mean(np.absolute(predictions - y_test))
+LinearRegression_MSE = np.mean((predictions - y_test) **2)
+LinearRegression_R2 = r2_score(predictions, y_test)
+print("Mean Absolute Error: %.2f" % LinearRegression_MAE)
+print("Mean Squared Error: %.2f" % LinearRegression_MSE)
+print("R2-Score: %.2f" % LinearRegression_R2)
+
+Mean Absolute Error: 0.26
+Mean Squared Error: 0.12
+R2-Score: -0.38
+
+Q5) Show the MAE, MSE, and R2 in a tabular format using data frame for the linear model
+
+#Enter Your Code and Execute
+from tabular import tabular
+dict = [["LinearRegression_MAE",LinearRegression_MAE],["LinearRegression_MSE",LinearRegression_MSE],
+       ["LinearRegression_R2",LinearRegression_R2]]
+Report = pd.DataFrame(dict)
+print(tabulate(Report))
+
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+Cell In[27], line 2
+      1 #Enter Your Code and Execute
+----> 2 from tabular import tabular
+      3 dict = [["LinearRegression_MAE",LinearRegression_MAE],["LinearRegression_MSE",LinearRegression_MSE],
+      4        ["LinearRegression_R2",LinearRegression_R2]]
+      5 Report = pd.DataFrame(dict)
+
+ModuleNotFoundError: No module named 'tabular'
+
+KNN
+Q6) Create and train a KNN model called KNN using the training data (x_train, y_train) with the n_neighbors parameter set to 4
+
+K = 4
+KNN = KNeighborsClassifier(n_neighbors = K)
+KNN.fit(x_train,y_train)
+
+  KNeighborsClassifier?i
+KNeighborsClassifier(n_neighbors=4)
+
+Q7) Now use the predict method on the testing data (x_test) and save it to the array predictions
+
+predictions = KNN.predict(x_test)
+predictions[0:5]
+
+array([0., 0., 1., 0., 0.])
+
+Q8) Using the predictions and the y_test dataframe calculate the value for each metric using the appropriate function.
+
+KNN_Accuracy_Score = metrics.accuracy_score(predictions, y_test)
+KNN_JaccardIndex = metrics.jaccard_score(predictions, y_test)
+KNN_F1_Score = metrics.f1_score(predictions, y_test)
+print("KNN_Accuracy_Score: %.2f" % KNN_Accuracy_Score)
+print("KNN_JaccardIndex: %.2f" % KNN_JaccardIndex)
+print("KNN_F1_Score: %.2f" % KNN_F1_Score)
+
+KNN_Accuracy_Score: 0.82
+KNN_JaccardIndex: 0.43
+KNN_F1_Score: 0.60
+
+Decision Tree
+Q9) Create and train a Decision Tree model called Tree using the training data (x_train, y_train)
+
+Tree = DecisionTreeClassifier(criterion = 'entropy', max_depth = 4)
+Tree.fit(x_train, y_train)
+
+  DecisionTreeClassifier?i
+DecisionTreeClassifier(criterion='entropy', max_depth=4)
+
+Q10) Now use the predict method on the testing data (x_test) and save it to the array predictions
+
+predictions= Tree.predict(x_test)
+
+Q11) Using the predictions and the y_test dataframe calculate the value for each metric using the appropriate function.
+
+Tree_Accuracy_Score = metrics.accuracy_score(predictions, y_test)
+Tree_JaccardIndex = metrics.jaccard_score(predictions, y_test)
+Tree_F1_Score = metrics.f1_score(predictions, y_test)
+print("Tree_Accuracy_Score: %.2f" % Tree_Accuracy_Score)
+print("Tree_JaccardIndex: %.2f" % Tree_JaccardIndex)
+print("Tree_F1_Score: %.2f" % Tree_F1_Score)
+
+Tree_Accuracy_Score: 0.82
+Tree_JaccardIndex: 0.48
+Tree_F1_Score: 0.65
+
+Logistic Regression
+Q12) Use the train_test_split function to split the features and Y dataframes with a test_size of 0.2 and the random_state set to 1
+
+
+x_train, x_test, y_train, y_test = train_test_split(features, Y, test_size = 0.2, random_state = 1)
+print ('Train set:', x_train.shape,  y_train.shape)
+print ('Test set:', x_test.shape,  y_test.shape)
+
+Train set: (2616, 66) (2616,)
+Test set: (655, 66) (655,)
+
+Q13) Create and train a LogisticRegression model called LR using the training data (x_train, y_train) with the solver parameter set to liblinear
+
+LR = LogisticRegression(solver = "liblinear")
+LR.fit(x_train,y_train)
+
+
+  LogisticRegression?i
+LogisticRegression(solver='liblinear')
+
+Q14) Now, use the predict and predict_proba methods on the testing data (x_test) and save it as 2 arrays predictions and predict_proba
+
+
+predictions = LR.predict(x_test)
+predict_proba = LR.predict(x_test)
+
+Q15) Using the predictions, predict_proba and the y_test dataframe calculate the value for each metric using the appropriate function.
+
+
+LR_Accuracy_Score = metrics.accuracy_score(predictions, y_test)
+LR_JaccardIndex = metrics.jaccard_score(predictions, y_test)
+LR_F1_Score = metrics.f1_score(predictions, y_test)
+LR_Log_Loss = metrics.log_loss(predictions, y_test)
+
+
+print("LR_Accuracy_Score: %.2f" % LR_Accuracy_Score)
+print("LR_JaccardIndex: %.2f" % LR_JaccardIndex)
+print("LR_F1_Score: %.2f" % LR_F1_Score)
+print("LR_Log_Loss: %.2f" % LR_Log_Loss)
+
+
+LR_Accuracy_Score: 0.84
+LR_JaccardIndex: 0.51
+LR_F1_Score: 0.68
+LR_Log_Loss: 5.83
+
+SVM
+Q16) Create and train a SVM model called SVM using the training data (x_train, y_train)
+
+SVM = svm.SVC(kernel = 'linear')
+SVM.fit(x_train,y_train)
+
+
+  SVC?i
+SVC(kernel='linear')
+
+Q17) Now use the predict method on the testing data (x_test) and save it to the array predictions
+
+predictions = SVM.predict(x_test)
+
+Q18) Using the predictions and the y_test dataframe calculate the value for each metric using the appropriate function
+
+SVM_Accuracy_Score = metrics.accuracy_score(predictions, y_test)
+SVM_JaccardIndex = metrics.jaccard_score(predictions, y_test)
+SVM_F1_Score = metrics.f1_score(predictions, y_test)
+
+print("SVM_Accuracy_Score: %.2f" % SVM_Accuracy_Score)
+print("SVM_JaccardIndex: %.2f" % SVM_JaccardIndex)
+print("SVM_F1_Score: %.2f" % SVM_F1_Score)
+
+SVM_Accuracy_Score: 0.83
+SVM_JaccardIndex: 0.50
+SVM_F1_Score: 0.66
+
+Report
+Q19) Show the Accuracy,Jaccard Index,F1-Score and LogLoss in a tabular format using data frame for all of the above models
+*LogLoss is only for Logistic Regression Model
+
+
+from tabular import tabular
+#dict = [["LinearRegression_MAE",LinearRegression_MAE],["LinearRegression_MSE",LinearRegression_MSE],
+#       ["LinearRegression_R2",LinearRegression_R2]]
+dict1 = {'LinearRegression' : [LinearRegression_MAE,LinearRegression_MSE,LinearRegression_R2],
+         'KNN' : [KNN_Accuracy_Score,KNN_JaccardIndex,KNN_F1_Score],
+         'DecisionTree' : [Tree_Accuracy_Score,Tree_JaccardIndex,Tree_F1_Score],
+         'LogisticRegression' : [LR_Accuracy_Score,LR_JaccardIndex,LR_F1_Score],
+         'SVM' : [SVM_Accuracy_Score,SVM_JaccardIndex,SVM_F1_Score]
+        }
+dict2 = [["LinearRegression_MAE",LinearRegression_MAE],["LinearRegression_MSE",LinearRegression_MSE],
+         ["LinearRegression_R2",LinearRegression_R2],
+         ["KNN_Accuracy_Score",KNN_Accuracy_Score],["KNN_JaccardIndex",KNN_JaccardIndex],
+         ["KNN_F1_Score",KNN_F1_Score],
+         ["Tree_Accuracy_Score",Tree_Accuracy_Score],["Tree_JaccardIndex",Tree_JaccardIndex],
+         ["Tree_F1_Score",Tree_F1_Score],
+         ["LR_Accuracy_Score",LR_Accuracy_Score],["LR_JaccardIndex",LR_JaccardIndex],
+         ["LR_F1_Score",LR_F1_Score],["LR_log_Loss",LR_Log_Loss],
+         ["SVM_Accuracy_Score",SVM_Accuracy_Score],["SVM_JaccardIndex",SVM_JaccardIndex],
+         ["SVM_F1_Score",SVM_F1_Score]]
+Report = pd.DataFrame(data=dict2)
+#print(tabulate(Report, headers = ['Accuracy','Jaccard Index','F1-Score', 'LogLoss']))
+print(tabulate(Report))
+
+
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+Cell In[76], line 1
+----> 1 from tabular import tabular
+      2 #dict = [["LinearRegression_MAE",LinearRegression_MAE],["LinearRegression_MSE",LinearRegression_MSE],
+      3 #       ["LinearRegression_R2",LinearRegression_R2]]
+      4 dict1 = {'LinearRegression' : [LinearRegression_MAE,LinearRegression_MSE,LinearRegression_R2],
+      5          'KNN' : [KNN_Accuracy_Score,KNN_JaccardIndex,KNN_F1_Score],
+      6          'DecisionTree' : [Tree_Accuracy_Score,Tree_JaccardIndex,Tree_F1_Score],
+      7          'LogisticRegression' : [LR_Accuracy_Score,LR_JaccardIndex,LR_F1_Score],
+      8          'SVM' : [SVM_Accuracy_Score,SVM_JaccardIndex,SVM_F1_Score]
+      9         }
+
+ModuleNotFoundError: No module named 'tabular'
+
